@@ -1033,18 +1033,18 @@ impl<const N: usize> SingleValueProductArg<N> {
 ///
 /// <http://www0.cs.ucl.ac.uk/staff/J.Groth/MinimalShuffle.pdf>
 ///
-/// The prover must convince the verifier that they know a hidden permutation 𝜋 (`pi`)
-/// and a random witness ρ (`rho`) such that the output ciphertext 𝒞' (`next`) is the
-/// corresponding input ciphertext 𝒞 (`next`) but re-ordered and re-masked by adding ElGamal
+/// The prover must convince the verifier that they know a hidden permutation 𝜋
+/// and a random witness ρ such that the output ciphertext 𝒞' is the
+/// corresponding input ciphertext 𝒞 but re-ordered and re-masked by adding ElGamal
 /// encryption function ℰ over message 1 with randomness ρ(i).
 ///
 /// i.e. 𝒞'\[i\] = 𝒞\[𝜋(i)\]·ℰ(1; ρ(i)) for all i in \[0; N-1\]
 ///
-/// NOTE: in the paper, N is split into m rows for proof-size optimization, however for simplicity
-/// we construct the proof over 1 row of N ciphertexts, i.e. we set m = 1.
+/// # Verification
 ///
-/// Also the variable/field naming attempts to follow the paper as closely as possible to make
-/// cross-referencing the implementation to the paper easier.
+/// To obtain a `Verified<MaskedDeck<N>>` from a shuffle proof, use:
+/// - [`Shuffle::verify_initial_shuffle`] for the first shuffle
+/// - [`Shuffle::verify_shuffle`] for subsequent shuffles
 pub struct ShuffleProof<const N: usize> {
     // commitment to permutations
     c_pi: PedersonCommitment,
@@ -1066,6 +1066,15 @@ struct ShuffleProofInputs<'a, const N: usize> {
     ctx: &'a [u8],
 }
 
+// NOTE: in the paper, N is split into m rows for proof-size optimization, however for simplicity
+// we construct the proof over 1 row of N ciphertexts, i.e. we set m = 1.
+//
+// Also the variable/field naming attempts to follow the paper as closely as possible to make
+// cross-referencing the implementation to the paper easier.
+// 𝜋 = `pi`
+// ρ = `rho`
+// 𝒞 = `prev`
+// 𝒞' = `next`
 impl<const N: usize> ShuffleProof<N> {
     const X_DST: &[u8] = b"ziffle/BG12X/v1";
     const YZ_DST: &[u8] = b"ziffle/BG12YZ/v1";
