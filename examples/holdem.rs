@@ -15,7 +15,7 @@ fn reveal_card(
     let vrts: Vec<_> = keys
         .iter()
         .map(|(sk, pk, vpk)| {
-            let (rt, proof) = card.reveal_token(rng, sk.clone(), *pk, ctx);
+            let (rt, proof) = card.reveal_token(rng, sk, *pk, ctx);
             proof.verify(*vpk, rt, card, ctx).unwrap()
         })
         .collect();

@@ -35,9 +35,9 @@ fn three_way_shuffle() {
 
     let first_card = final_vdeck.get(0).unwrap();
 
-    let (hal_rt, hal_rt_proof) = first_card.reveal_token(&mut rng, hal_sk, hal_pk, ctx);
-    let (bob_rt, bob_rt_proof) = first_card.reveal_token(&mut rng, bob_sk, bob_pk, ctx);
-    let (jim_rt, jim_rt_proof) = first_card.reveal_token(&mut rng, jim_sk, jim_pk, ctx);
+    let (hal_rt, hal_rt_proof) = first_card.reveal_token(&mut rng, &hal_sk, hal_pk, ctx);
+    let (bob_rt, bob_rt_proof) = first_card.reveal_token(&mut rng, &bob_sk, bob_pk, ctx);
+    let (jim_rt, jim_rt_proof) = first_card.reveal_token(&mut rng, &jim_sk, jim_pk, ctx);
 
     let art = AggregateRevealToken::new(&[
         hal_rt_proof
@@ -76,7 +76,7 @@ fn serde_roundtrips() {
 
     let card = vdeck.get(0).unwrap();
 
-    let (reveal_token, reveal_proof) = card.reveal_token(&mut rng, sk.clone(), pk, ctx);
+    let (reveal_token, reveal_proof) = card.reveal_token(&mut rng, &sk, pk, ctx);
 
     let mut sk_bytes = [0u8; 1024];
     sk.serialize_compressed(&mut sk_bytes[..]).unwrap();
@@ -164,7 +164,7 @@ fn verify_tampered_reveal_token_fails() {
 
     let card = vdeck.get(0).unwrap();
 
-    let (hal_rt, hal_rt_proof) = card.reveal_token(&mut rng, hal_sk, hal_pk, ctx);
+    let (hal_rt, hal_rt_proof) = card.reveal_token(&mut rng, &hal_sk, hal_pk, ctx);
 
     // Valid token should verify
     assert!(hal_rt_proof.verify(hal_vpk, hal_rt, card, ctx).is_some());
@@ -201,7 +201,7 @@ fn verify_tampered_reveal_token_proof_t_g_fails() {
 
     let card = vdeck.get(0).unwrap();
 
-    let (hal_rt, hal_rt_proof) = card.reveal_token(&mut rng, hal_sk, hal_pk, ctx);
+    let (hal_rt, hal_rt_proof) = card.reveal_token(&mut rng, &hal_sk, hal_pk, ctx);
 
     // Valid proof should verify
     assert!(hal_rt_proof.verify(hal_vpk, hal_rt, card, ctx).is_some());
@@ -235,7 +235,7 @@ fn verify_tampered_reveal_token_proof_t_c1_fails() {
 
     let card = vdeck.get(0).unwrap();
 
-    let (hal_rt, hal_rt_proof) = card.reveal_token(&mut rng, hal_sk, hal_pk, ctx);
+    let (hal_rt, hal_rt_proof) = card.reveal_token(&mut rng, &hal_sk, hal_pk, ctx);
 
     // Valid proof should verify
     assert!(hal_rt_proof.verify(hal_vpk, hal_rt, card, ctx).is_some());
@@ -269,7 +269,7 @@ fn verify_tampered_reveal_token_proof_z_fails() {
 
     let card = vdeck.get(0).unwrap();
 
-    let (hal_rt, hal_rt_proof) = card.reveal_token(&mut rng, hal_sk, hal_pk, ctx);
+    let (hal_rt, hal_rt_proof) = card.reveal_token(&mut rng, &hal_sk, hal_pk, ctx);
 
     // Valid proof should verify
     assert!(hal_rt_proof.verify(hal_vpk, hal_rt, card, ctx).is_some());
@@ -303,7 +303,7 @@ fn verify_reveal_token_wrong_public_key_fails() {
 
     let card = vdeck.get(0).unwrap();
 
-    let (hal_rt, hal_rt_proof) = card.reveal_token(&mut rng, hal_sk, hal_pk, ctx);
+    let (hal_rt, hal_rt_proof) = card.reveal_token(&mut rng, &hal_sk, hal_pk, ctx);
 
     // Valid proof with correct public key should verify
     assert!(hal_rt_proof.verify(hal_vpk, hal_rt, card, ctx).is_some());
@@ -336,7 +336,7 @@ fn verify_reveal_token_wrong_card_fails() {
     let card0 = vdeck.get(0).unwrap();
     let card1 = vdeck.get(1).unwrap();
 
-    let (hal_rt, hal_rt_proof) = card0.reveal_token(&mut rng, hal_sk, hal_pk, ctx);
+    let (hal_rt, hal_rt_proof) = card0.reveal_token(&mut rng, &hal_sk, hal_pk, ctx);
 
     // Valid proof with correct card should verify
     assert!(hal_rt_proof.verify(hal_vpk, hal_rt, card0, ctx).is_some());
@@ -369,7 +369,7 @@ fn verify_reveal_token_wrong_context_fails() {
 
     let card = vdeck.get(0).unwrap();
 
-    let (hal_rt, hal_rt_proof) = card.reveal_token(&mut rng, hal_sk, hal_pk, ctx);
+    let (hal_rt, hal_rt_proof) = card.reveal_token(&mut rng, &hal_sk, hal_pk, ctx);
 
     // Valid proof with correct context should verify
     assert!(hal_rt_proof.verify(hal_vpk, hal_rt, card, ctx).is_some());
@@ -434,12 +434,12 @@ fn reveal_card_with_wrong_aggregate_token_fails() {
     let card1 = vdeck.get(1).unwrap();
 
     // Create reveal tokens for card0
-    let (hal_rt0, hal_rt_proof0) = card0.reveal_token(&mut rng, hal_sk.clone(), hal_pk, ctx);
-    let (bob_rt0, bob_rt_proof0) = card0.reveal_token(&mut rng, bob_sk.clone(), bob_pk, ctx);
+    let (hal_rt0, hal_rt_proof0) = card0.reveal_token(&mut rng, &hal_sk, hal_pk, ctx);
+    let (bob_rt0, bob_rt_proof0) = card0.reveal_token(&mut rng, &bob_sk, bob_pk, ctx);
 
     // Create reveal tokens for card1
-    let (hal_rt1, hal_rt_proof1) = card1.reveal_token(&mut rng, hal_sk, hal_pk, ctx);
-    let (bob_rt1, bob_rt_proof1) = card1.reveal_token(&mut rng, bob_sk, bob_pk, ctx);
+    let (hal_rt1, hal_rt_proof1) = card1.reveal_token(&mut rng, &hal_sk, hal_pk, ctx);
+    let (bob_rt1, bob_rt_proof1) = card1.reveal_token(&mut rng, &bob_sk, bob_pk, ctx);
 
     // Correct aggregate token for card0 should reveal successfully
     let art0 = AggregateRevealToken::new(&[
@@ -514,8 +514,8 @@ fn reveal_all_cards_in_deck() {
     for i in 0..10 {
         let card = vdeck.get(i).unwrap();
 
-        let (hal_rt, hal_rt_proof) = card.reveal_token(&mut rng, hal_sk.clone(), hal_pk, ctx);
-        let (bob_rt, bob_rt_proof) = card.reveal_token(&mut rng, bob_sk.clone(), bob_pk, ctx);
+        let (hal_rt, hal_rt_proof) = card.reveal_token(&mut rng, &hal_sk, hal_pk, ctx);
+        let (bob_rt, bob_rt_proof) = card.reveal_token(&mut rng, &bob_sk, bob_pk, ctx);
 
         let art = AggregateRevealToken::new(&[
             hal_rt_proof.verify(hal_vpk, hal_rt, card, ctx).unwrap(),
@@ -523,7 +523,7 @@ fn reveal_all_cards_in_deck() {
         ]);
 
         let revealed_idx = shuffle.reveal_card(art, card);
-        assert!(revealed_idx.is_some(), "Failed to reveal card {}", i);
+        assert!(revealed_idx.is_some(), "Failed to reveal card {i}");
         revealed_indices[revealed_idx.unwrap()] = Some(i);
     }
 
@@ -689,9 +689,8 @@ fn verify_tampered_initial_shuffle_fails() {
             shuffle
                 .verify_initial_shuffle(apk, tampered_deck, tampered_proof, ctx)
                 .is_none(),
-            "tamper function '{}' was not detected",
-            name
-        )
+            "tamper function '{name}' was not detected",
+        );
     }
 }
 
@@ -731,8 +730,7 @@ fn verify_tampered_shuffle_fails() {
             shuffle
                 .verify_initial_shuffle(apk, tampered_deck, tampered_proof, ctx)
                 .is_none(),
-            "tamper function '{}' was not detected",
-            name
-        )
+            "tamper function '{name}' was not detected",
+        );
     }
 }

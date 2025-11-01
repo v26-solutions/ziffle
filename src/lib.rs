@@ -70,11 +70,11 @@
 //!
 //! // Each player creates a reveal token for the first card
 //! let (alice_token, alice_token_proof) =
-//!     first_card.reveal_token(&mut rng, alice_sk, alice_pk, ctx);
+//!     first_card.reveal_token(&mut rng, &alice_sk, alice_pk, ctx);
 //! let (bob_token, bob_token_proof) =
-//!     first_card.reveal_token(&mut rng, bob_sk, bob_pk, ctx);
+//!     first_card.reveal_token(&mut rng, &bob_sk, bob_pk, ctx);
 //! let (carol_token, carol_token_proof) =
-//!     first_card.reveal_token(&mut rng, carol_sk, carol_pk, ctx);
+//!     first_card.reveal_token(&mut rng, &carol_sk, carol_pk, ctx);
 //!
 //! // All players verify each other's reveal tokens
 //! let alice_vtoken = alice_token_proof
@@ -114,6 +114,7 @@
 //! | `RevealToken` | 33 bytes | One per player per revealed card |
 //! | `RevealTokenProof` | 98 bytes | One per player per revealed card |
 #![no_std]
+#![forbid(clippy::all)]
 
 use core::array;
 
@@ -403,6 +404,7 @@ impl AggregatePublicKey {
     ///
     /// let apk = AggregatePublicKey::new(&[vpk1, vpk2]);
     /// ```
+    #[must_use]
     pub fn new(pks: &[Verified<PublicKey>]) -> Self {
         let apk: CurveProj = pks.iter().map(|pk| pk.0.0).sum();
         Self(apk.into_affine())
@@ -469,6 +471,7 @@ impl RevealTokenProof {
     /// # Returns
     ///
     /// `Some(Verified<RevealToken>)` if valid, `None` otherwise.
+    #[must_use]
     pub fn verify(
         &self,
         pk: Verified<PublicKey>,
@@ -525,8 +528,8 @@ pub struct RevealToken(CurveAffine);
 /// # let (deck, proof) = shuffle.shuffle_initial_deck(&mut rng, apk, ctx);
 /// # let vdeck = shuffle.verify_initial_shuffle(apk, deck, proof, ctx).unwrap();
 /// # let card = vdeck.get(0).unwrap();
-/// # let (rt1, rt_proof1) = card.reveal_token(&mut rng, sk1, pk1, ctx);
-/// # let (rt2, rt_proof2) = card.reveal_token(&mut rng, sk2, pk2, ctx);
+/// # let (rt1, rt_proof1) = card.reveal_token(&mut rng, &sk1, pk1, ctx);
+/// # let (rt2, rt_proof2) = card.reveal_token(&mut rng, &sk2, pk2, ctx);
 ///
 /// // Aggregate verified reveal tokens
 /// let art = AggregateRevealToken::new(&[
@@ -545,6 +548,7 @@ impl AggregateRevealToken {
     /// # Arguments
     ///
     /// * `pks` - Slice of verified reveal tokens from all players
+    #[must_use]
     pub fn new(pks: &[Verified<RevealToken>]) -> Self {
         let art: CurveProj = pks.iter().map(|t| t.0.0.into_group()).sum();
         Self(art.into_affine())
@@ -590,7 +594,7 @@ impl MaskedCard {
     /// # let vdeck = shuffle.verify_initial_shuffle(apk, deck, shuf_proof, ctx).unwrap();
     ///
     /// let card = vdeck.get(0).unwrap();
-    /// let (token, proof) = card.reveal_token(&mut rng, sk, pk, ctx);
+    /// let (token, proof) = card.reveal_token(&mut rng, &sk, pk, ctx);
     ///
     /// // Other players verify the token
     /// let verified_token = proof.verify(vpk, token, card, ctx).unwrap();
@@ -598,14 +602,14 @@ impl MaskedCard {
     pub fn reveal_token<R: Rng>(
         &self,
         rng: &mut R,
-        sk: SecretKey,
+        sk: &SecretKey,
         pk: PublicKey,
         ctx: &[u8],
     ) -> (RevealToken, RevealTokenProof) {
         let SecretKey(sk) = sk;
         let c1 = self.0.0.into_group();
         let share = (c1 * sk).into_affine();
-        let proof = RevealTokenProof::new(rng, sk, pk, share, c1, ctx);
+        let proof = RevealTokenProof::new(rng, *sk, pk, share, c1, ctx);
         (RevealToken(share), proof)
     }
 }
@@ -1000,7 +1004,7 @@ impl<const N: usize> SingleValueProductArg<N> {
             // inititalizing the vector with 0 means the last element has no effect when committing
             let mut v = [Scalar::zero(); N];
             (0..N - 1).for_each(|i| {
-                v[i] = (x * self.b_tilde[i + 1]) - (self.b_tilde[i] * self.a_tilde[i + 1])
+                v[i] = (x * self.b_tilde[i + 1]) - (self.b_tilde[i] * self.a_tilde[i + 1]);
             });
             let c_a_tilde_b_tilde = ck.vector_commit_with_r(&v, self.s_tilde);
             c_sdelta_cdelta.into_affine() == c_a_tilde_b_tilde.into_affine()
@@ -1587,8 +1591,8 @@ impl<const N: usize> Shuffle<N> {
     /// let card = vdeck.get(0).unwrap();
     ///
     /// // Each player creates a reveal token
-    /// let (rt1, rt_proof1) = card.reveal_token(&mut rng, sk1, pk1, ctx);
-    /// let (rt2, rt_proof2) = card.reveal_token(&mut rng, sk2, pk2, ctx);
+    /// let (rt1, rt_proof1) = card.reveal_token(&mut rng, &sk1, pk1, ctx);
+    /// let (rt2, rt_proof2) = card.reveal_token(&mut rng, &sk2, pk2, ctx);
     ///
     /// // Verify and aggregate tokens
     /// let art = AggregateRevealToken::new(&[

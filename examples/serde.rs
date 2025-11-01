@@ -26,7 +26,7 @@ fn main() {
 
     let card = vdeck.get(0).unwrap();
 
-    let (reveal_token, reveal_proof) = card.reveal_token(&mut rng, sk.clone(), pk, ctx);
+    let (reveal_token, reveal_proof) = card.reveal_token(&mut rng, &sk, pk, ctx);
 
     let mut sk_bytes = vec![];
     sk.serialize_compressed(&mut sk_bytes).unwrap();
