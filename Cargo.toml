@@ -9,6 +9,7 @@ license     = "MIT OR Apache-2.0"
 catagories  = ["cryptography", "game-development", "mathematics", "no-std", "no-std::no-alloc"]
 keywords    = ["mental-poker", "arkworks", "bayer-groth", "elgamal", "shuffle"]
 readme      = "README.md"
+include     = ["src/**/*", "LICENSE-*", "README.md"]
 
 [dependencies]
 ark-ec        = { version = "0.5.0", default-features = false }
