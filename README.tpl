@@ -1,5 +1,8 @@
 # {{crate}}
 
+[![crates.io](https://img.shields.io/crates/v/ziffle.svg)](https://crates.io/crates/ziffle)
+[![docs.rs](https://img.shields.io/docsrs/ziffle)](https://docs.rs/ziffle/latest/ziffle/)
+
 {{readme}}
 
 ## License

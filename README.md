@@ -1,5 +1,8 @@
 # ziffle
 
+[![crates.io](https://img.shields.io/crates/v/ziffle.svg)](https://crates.io/crates/ziffle)
+[![docs.rs](https://img.shields.io/docsrs/ziffle)](https://docs.rs/ziffle/latest/ziffle/)
+
 Mental poker shuffle protocol using zero-knowledge proofs.
 
 `ziffle` implements a mental poker protocol where multiple players can
@@ -72,11 +75,11 @@ let first_card = final_vdeck.get(0).unwrap();
 
 // Each player creates a reveal token for the first card
 let (alice_token, alice_token_proof) =
-    first_card.reveal_token(&mut rng, alice_sk, alice_pk, ctx);
+    first_card.reveal_token(&mut rng, &alice_sk, alice_pk, ctx);
 let (bob_token, bob_token_proof) =
-    first_card.reveal_token(&mut rng, bob_sk, bob_pk, ctx);
+    first_card.reveal_token(&mut rng, &bob_sk, bob_pk, ctx);
 let (carol_token, carol_token_proof) =
-    first_card.reveal_token(&mut rng, carol_sk, carol_pk, ctx);
+    first_card.reveal_token(&mut rng, &carol_sk, carol_pk, ctx);
 
 // All players verify each other's reveal tokens
 let alice_vtoken = alice_token_proof
